@@ -1,6 +1,7 @@
 mod client;
 mod process;
 mod transaction;
+
 use crate::{process::ProcessTransactions, transaction::Transaction};
 
 use anyhow::{bail, Context, Result};
@@ -9,12 +10,12 @@ use std::fs::File;
 
 lazy_static::lazy_static! {
     // Deposits and Withdrawals have 4 inputs
-    pub static ref FOUR_INPUTS: ByteRecord = ByteRecord::from(
+    pub(crate) static ref FOUR_INPUTS: ByteRecord = ByteRecord::from(
         vec!["type", "client", "tx", "amount"]
     );
 
     // Disputes, Resolves, and Chargebacks have 3 inputs
-    pub static ref THREE_INPUTS: ByteRecord = ByteRecord::from(
+    pub(crate) static ref THREE_INPUTS: ByteRecord = ByteRecord::from(
         vec!["type", "client", "tx"]
     );
 }

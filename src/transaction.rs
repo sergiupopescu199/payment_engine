@@ -14,20 +14,20 @@ pub enum TransactionEnum {
 
 // Holds all the information for a transaction
 #[derive(Deserialize, Debug, Clone, Copy, PartialEq)]
-pub struct Transaction {
+pub(crate) struct Transaction {
     // Transaction type
     #[serde(rename = "type")]
-    pub tx_type: TransactionEnum,
+    pub(crate) tx_type: TransactionEnum,
     // Client ID
     #[serde(rename = "client")]
-    pub client_id: u16,
+    pub(crate) client_id: u16,
     #[serde(rename = "tx")]
     // Transaction ID
-    pub tx_id: u32,
+    pub(crate) tx_id: u32,
     #[serde(rename = "amount")]
     #[serde(default = "default_amount")]
     // Transaction amount
-    pub tx_amount: f32,
+    pub(crate) tx_amount: f32,
 }
 
 /// Used for dispute, resolve, chargeback transactions because they

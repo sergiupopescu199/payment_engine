@@ -6,7 +6,7 @@ use crate::transaction::TransactionEnum;
 
 #[derive(Debug, PartialEq, Clone)]
 /// Represents client's account data
-pub struct Client {
+pub(crate) struct Client {
     /// Available balance
     balance_available: f32,
     /// Held balance
@@ -39,7 +39,7 @@ impl Default for Client {
 
 impl Client {
     /// Returns a new client
-    pub fn new(tx_id: u32, tx_type: TransactionEnum, tx_amount: f32) -> Self {
+    pub(crate) fn new(tx_id: u32, tx_type: TransactionEnum, tx_amount: f32) -> Self {
         let balance = {
             match tx_type {
                 TransactionEnum::Deposit => tx_amount,
@@ -61,7 +61,7 @@ impl Client {
     /// Checks if the account is currently frozen.
     ///
     /// Returns `true` if it's frozen
-    pub fn account_frozen(&self, tx_id: u32) -> Result<bool> {
+    pub(crate) fn account_frozen(&self, tx_id: u32) -> Result<bool> {
         if self.frozen {
             Err(anyhow!(
                 "Account is currently frozen, transaction ID: {} was not processed!",
@@ -73,13 +73,13 @@ impl Client {
     }
 
     /// Store current transaction and chain it to the previous one
-    pub fn chain_tx(&mut self, tx_id: u32, tx_type: TransactionEnum, tx_amount: f32) {
+    pub(crate) fn chain_tx(&mut self, tx_id: u32, tx_type: TransactionEnum, tx_amount: f32) {
         self.previous_tx_id = tx_id;
         self.transactions.insert(tx_id, (tx_type, tx_amount));
     }
 
     /// Checks if there is sufficient funds available to process transaction
-    pub fn sufficient_funds(&self, tx_amount: f32) -> Result<()> {
+    pub(crate) fn sufficient_funds(&self, tx_amount: f32) -> Result<()> {
         if self.balance_available >= tx_amount {
             return Ok(());
         }
@@ -93,7 +93,7 @@ impl Client {
 
     /// Checks the disputed status of a past transaction, and compare
     /// it to the value passed into the call
-    pub fn disputed_status(&self, tx_id: u32, status: bool) -> Result<()> {
+    pub(crate) fn disputed_status(&self, tx_id: u32, status: bool) -> Result<()> {
         if self.disputed_tx.contains(tx_id) == status {
             return Ok(());
         }
@@ -111,7 +111,7 @@ impl Client {
     }
 
     /// Processes the current transaction based on it's type
-    pub fn process_tx(
+    pub(crate) fn process_tx(
         &mut self,
         tx_id: u32,
         tx_type: TransactionEnum,
@@ -176,7 +176,7 @@ impl Client {
     }
 
     /// Retrieves client's account infomation
-    pub fn get_info(&self, client_id: &u16) -> Vec<String> {
+    pub(crate) fn get_info(&self, client_id: &u16) -> Vec<String> {
         vec![
             client_id.to_string(),
             format!("{:.4}", self.balance_available),

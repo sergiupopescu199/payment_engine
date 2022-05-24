@@ -16,7 +16,7 @@ struct ProcessTransactionsTask {
 
 impl ProcessTransactionsTask {
     /// run the task
-    pub async fn run(&mut self) {
+    async fn run(&mut self) {
         // loop while channel is not disconected
         loop {
             match self.rx_tx.try_recv() {
@@ -46,7 +46,7 @@ impl ProcessTransactionsTask {
     }
 
     /// send account balances to high level
-    pub fn send_acccount_balances(&self) {
+    fn send_acccount_balances(&self) {
         // for every client id get it's info and send it to high level
         self.clients.iter().for_each(|(client_id, client)| {
             let _ = self
@@ -57,15 +57,15 @@ impl ProcessTransactionsTask {
 }
 
 /// Process transactions and get client balance information
-pub struct ProcessTransactions {
+pub(crate) struct ProcessTransactions {
     /// Send a new transaction to be processed
-    pub tx_tx: mpsc::UnboundedSender<Transaction>,
+    pub(crate) tx_tx: mpsc::UnboundedSender<Transaction>,
     /// Receive client's balance information based on it's transaction flow
-    pub rx_result: mpsc::UnboundedReceiver<ByteRecord>,
+    pub(crate) rx_result: mpsc::UnboundedReceiver<ByteRecord>,
 }
 
 impl ProcessTransactions {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         // create channels needed for comunication
         let (tx_tx, rx_tx) = mpsc::unbounded_channel();
         let (tx_result, rx_result) = mpsc::unbounded_channel();
