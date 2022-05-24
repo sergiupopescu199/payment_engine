@@ -30,14 +30,6 @@ pub struct Transaction {
     pub tx_amount: f32,
 }
 
-impl Transaction {
-    /// Returns a copy of internal transaction data, including
-    /// the transaction type and amount.
-    fn get_data(&self) -> (TransactionEnum, f32) {
-        (self.tx_type, self.tx_amount)
-    }
-}
-
 /// Used for dispute, resolve, chargeback transactions because they
 /// don't include the amount field.
 fn default_amount() -> f32 {
@@ -46,16 +38,84 @@ fn default_amount() -> f32 {
 
 #[cfg(test)]
 mod tests {
+
+    use std::fs::File;
+
     use super::{Transaction, TransactionEnum};
+    use anyhow::Result;
+    use csv::{ByteRecord, Reader, ReaderBuilder, Trim};
+
+    fn initialize() -> Result<Reader<File>> {
+        match File::open("csv_files/tx_test.csv") {
+            Ok(file) => {
+                return Ok(ReaderBuilder::new()
+                    .delimiter(b',')
+                    .flexible(true)
+                    .trim(Trim::All)
+                    .from_reader(file))
+            }
+            Err(e) => panic!("{e}"),
+        };
+    }
 
     #[test]
-    fn retrieve_data_1() {
-        let tx = Transaction {
-            tx_type: TransactionEnum::Deposit,
-            client_id: 01,
-            tx_id: 02032,
-            tx_amount: 123.34,
-        };
-        assert_eq!((TransactionEnum::Deposit, 123.34), tx.get_data());
+    fn retrieve_data() {
+        let mut reader = initialize().unwrap();
+        let mut record = ByteRecord::new();
+        let four_inputs = ByteRecord::from(vec!["type", "client", "tx", "amount"]);
+        let three_inputs = ByteRecord::from(vec!["type", "client", "tx"]);
+
+        let compare_tx = vec![
+            Transaction {
+                tx_type: TransactionEnum::Deposit,
+                client_id: 1,
+                tx_id: 1,
+                tx_amount: 10.0,
+            },
+            Transaction {
+                tx_type: TransactionEnum::Withdrawal,
+                client_id: 1,
+                tx_id: 4,
+                tx_amount: 3.0,
+            },
+            Transaction {
+                tx_type: TransactionEnum::Dispute,
+                client_id: 1,
+                tx_id: 3,
+                tx_amount: 0.0,
+            },
+            Transaction {
+                tx_type: TransactionEnum::Resolve,
+                client_id: 1,
+                tx_id: 3,
+                tx_amount: 0.0,
+            },
+            Transaction {
+                tx_type: TransactionEnum::Chargeback,
+                client_id: 1,
+                tx_id: 3,
+                tx_amount: 0.0,
+            },
+        ];
+        let mut store_tx = vec![];
+
+        while reader.read_byte_record(&mut record).unwrap() {
+            // for every record we must ensure it has the right amount of inputs on the line
+            let tx: Transaction = record
+                .deserialize(match record.len() {
+                    4 => Some(&four_inputs),
+                    3 => Some(&three_inputs),
+                    _ => {
+                        panic!("Error reading data, invalid length of {}.", record.len())
+                    }
+                })
+                .unwrap();
+            store_tx.push(tx);
+        }
+
+        store_tx
+            .iter()
+            .enumerate()
+            .for_each(|(index, tx)| assert_eq!(tx, compare_tx.get(index).unwrap()))
     }
 }

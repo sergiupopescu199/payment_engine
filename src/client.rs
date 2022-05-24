@@ -193,18 +193,18 @@ mod tests {
 
     #[test]
     pub fn client_creation() {
-        let client1 = Client::new(5546465, TransactionEnum::Deposit, 4549.5411);
+        let client1 = Client::new(123456, TransactionEnum::Deposit, 5000.1234);
 
         let mut tx_log: HashMap<u32, (TransactionEnum, f32)> = HashMap::new();
-        tx_log.insert(5546465, (TransactionEnum::Deposit, 4549.5411));
+        tx_log.insert(5546465, (TransactionEnum::Deposit, 5000.1234));
 
         let client2 = Client {
-            balance_available: 4549.5411,
+            balance_available: 5000.1234,
             balance_held: 0.0,
-            balance_total: 4549.5411,
+            balance_total: 5000.1234,
             transactions: tx_log,
             disputed_tx: SetU32::new(),
-            previous_tx_id: 5546465,
+            previous_tx_id: 123456,
             frozen: false,
         };
         assert_eq!(client1, client2);

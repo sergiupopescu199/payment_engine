@@ -1,0 +1,10 @@
+type, client, tx, amount
+deposit, 35978, 1, 875.2435
+deposit, 58598, 2, 891.4498
+withdrawal, 23187, 3, 137.4155
+deposit, 17526, 4, 546.5741
+deposit, 17438, 5, 321.6327
+withdrawal, 39469, 6, 53.5526
+deposit, 62104, 7, 102.2511
+dispute, 62104, 7
+chargeback, 62104, 7
